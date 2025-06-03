@@ -1,0 +1,42 @@
+name: Deploy Lambda on Change
+
+on:
+  push:
+    paths:
+      - 'lambda/**'
+      - 'terraform/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Zip Lambda Code
+      run: |
+        cd lambda
+        zip -r ../function.zip .
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-west-2
+
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v2
+
+    - name: Terraform Init
+      run: terraform -chdir=terraform init
+
+    - name: Apply bucket only (first-time or always safe)
+      run: terraform -chdir=terraform apply -auto-approve -target=aws_s3_bucket.lambda_code_bucket
+
+    - name: Upload function.zip to Lambda code bucket
+      run: aws s3 cp function.zip s3://my-lambda-code-bucket/function.zip
+
+    - name: Full Apply with Lambda Deployment
+      run: terraform -chdir=terraform apply -auto-approve -var="deploy_lambda=true"
