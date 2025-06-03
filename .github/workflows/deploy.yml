@@ -36,7 +36,7 @@ jobs:
       run: terraform -chdir=terraform apply -auto-approve -target=aws_s3_bucket.lambda_code_bucket
 
     - name: Upload function.zip to Lambda code bucket
-      run: aws s3 cp function.zip s3://my-lambda-code-bucket/function.zip
+      run: aws s3 cp function.zip s3://my-lambda-code-bucket-231017/function.zip
 
     - name: Full Apply with Lambda Deployment
       run: terraform -chdir=terraform apply -auto-approve -var="deploy_lambda=true"
