@@ -3,8 +3,8 @@ name: Deploy Lambda on Change
 on:
   push:
     paths:
-      - 'lambda/**'
-      - 'terraform/**'
+      # - 'lambda/**'
+      # - 'terraform/**'
 
 jobs:
   deploy:
